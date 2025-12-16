@@ -117,6 +117,22 @@ export function GitHubRankings() {
                 <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
                 <span className="hidden sm:inline">Refresh</span>
               </Button>
+              <button>
+                <a
+                  href="https://github.com/anbuinfosec/github-rankings"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted/50"
+                  aria-label="Repository"
+                >
+                  {/* GitHub mark */}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                    <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.9.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.36-1.3-1.72-1.3-1.72-1.06-.73.08-.72.08-.72 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.72 1.27 3.39.97.11-.76.41-1.27.75-1.56-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.19.92-.26 1.9-.39 2.88-.39s1.96.13 2.88.39c2.21-1.5 3.18-1.19 3.18-1.19.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.41-2.69 5.4-5.25 5.68.42.36.8 1.08.8 2.18 0 1.57-.02 2.83-.02 3.22 0 .31.21.68.8.56C20.71 21.39 24 17.08 24 12c0-6.27-5.23-11.5-12-11.5z" />
+                  </svg>
+                  <span className="hidden sm:inline">Repo</span>
+                </a>
+              </button>
+
             </div>
           </div>
         </div>
@@ -240,7 +256,6 @@ export function GitHubRankings() {
       {/* Footer */}
       <footer className="border-t border-border mt-12 py-6">
         <div className="max-w-7xl mx-auto px-4 text-center text-muted-foreground text-sm">
-          <p>{data?.isLiveData === false ? "Showing sample data" : "Data sourced from GitHub API"} • Updated hourly</p>
           <p className="mt-1">
             Inspired by{" "}
             <a
@@ -252,6 +267,31 @@ export function GitHubRankings() {
               gayanvoice/top-github-users
             </a>
           </p>
+          <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+            <span>
+              Created by{" "}
+              <a
+                href="https://anbuinfosec.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                anbuinfosec
+              </a>
+            </span>
+            <span>•</span>
+            <span>
+              Source code on{" "}
+              <a
+                href="https://github.com/anbuinfosec/github-rankings"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                GitHub
+              </a>
+            </span>
+          </div>
         </div>
       </footer>
     </div>

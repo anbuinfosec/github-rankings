@@ -1,5 +1,7 @@
 # GitHub User Analytics / GitHub Rankings
 
+[![GitHub Country Rank](https://github-rankings.vercel.app/api/badge/anbuinfosec?theme=dark)](https://github-rankings.vercel.app)
+
 Lightweight Next.js app that generates country-based GitHub ranking badges and a searchable list of top users by country.
 
 ## Features

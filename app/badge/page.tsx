@@ -19,19 +19,20 @@ const themes = [
 
 type ThemeId = (typeof themes)[number]["id"]
 
-export default function BadgePage() {
+function BadgePage() {
   const [username, setUsername] = useState("")
   const [previewUsername, setPreviewUsername] = useState("anbuinfosec")
   const [theme, setTheme] = useState<ThemeId>("dark")
   const [copied, setCopied] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [worldwide, setWorldwide] = useState(false)
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : ""
-  const badgeUrl = `${baseUrl}/api/badge/${previewUsername}?theme=${theme}`
+  const badgeUrl = `${baseUrl}/api/badge/${previewUsername}?theme=${theme}${worldwide ? "&worldwide=true" : ""}`
 
-  const markdownCode = `![GitHub Country Rank](${badgeUrl})`
-  const htmlCode = `<img src="${badgeUrl}" alt="GitHub Country Rank" />`
-  const linkCode = `[![GitHub Country Rank](${badgeUrl})](${baseUrl})`
+  const markdownCode = `![GitHub Rank](${badgeUrl})`
+  const htmlCode = `<img src="${badgeUrl}" alt="GitHub Rank" />`
+  const linkCode = `[![GitHub Rank](${badgeUrl})](${baseUrl})`
 
   const handleGenerate = () => {
     if (username.trim()) {
@@ -125,11 +126,23 @@ export default function BadgePage() {
 
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground">Live Preview</label>
+                <div className="flex items-center gap-4 mb-4">
+                  <input
+                    id="worldwide-toggle"
+                    type="checkbox"
+                    checked={worldwide}
+                    onChange={() => setWorldwide((w) => !w)}
+                    className="accent-primary h-4 w-4"
+                  />
+                  <label htmlFor="worldwide-toggle" className="text-sm select-none cursor-pointer">
+                    Show Worldwide Rank
+                  </label>
+                </div>
                 <div className="flex justify-center rounded-xl border-2 border-dashed border-border bg-muted/30 p-8">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    key={`${previewUsername}-${theme}-${refreshKey}`}
-                    src={`/api/badge/${previewUsername}?theme=${theme}&v=${refreshKey}`}
+                    key={`${previewUsername}-${theme}-${refreshKey}-${worldwide}`}
+                    src={`/api/badge/${previewUsername}?theme=${theme}${worldwide ? "&worldwide=true" : ""}&v=${refreshKey}`}
                     alt="GitHub Rank Badge Preview"
                     className="max-w-full rounded-lg shadow-lg"
                   />
@@ -233,6 +246,8 @@ export default function BadgePage() {
           </Card>
         </div>
       </main>
-    </div>
-  )
-}
+      </div>
+    )
+  }
+  
+  export default BadgePage

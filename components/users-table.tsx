@@ -9,9 +9,11 @@ interface UsersTableProps {
   users: GitHubUser[]
   sortField: SortField
   loading?: boolean
+  page?: number
+  pageSize?: number
 }
 
-export function UsersTable({ users, sortField, loading }: UsersTableProps) {
+export function UsersTable({ users, sortField, loading, page = 1, pageSize = 30 }: UsersTableProps) {
   if (loading) {
     return (
       <div className="space-y-3">
@@ -39,10 +41,11 @@ export function UsersTable({ users, sortField, loading }: UsersTableProps) {
     )
   }
 
+  const startRank = (page - 1) * pageSize + 1
   return (
     <div className="space-y-3">
       {users.map((user, index) => (
-        <UserCard key={user.id} user={user} rank={index + 1} sortField={sortField} />
+        <UserCard key={user.id} user={user} rank={startRank + index} sortField={sortField} />
       ))}
     </div>
   )

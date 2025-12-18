@@ -243,7 +243,6 @@ function generateSVG(
   total: number,
   theme: "dark" | "light" | "gradient" | "midnight" | "ocean" | "sunset",
   avatarDataUrl?: string,
-  isWorldRank?: boolean,
 ): string {
   const { color: rankColor, bgColor: rankBgColor } = getRankStyle(rank)
   const displayName = user.name || user.login
@@ -312,12 +311,8 @@ function generateSVG(
   }
 
   const t = themes[theme]
-  let countryName = country ? country.name : "World"
-  let countryFlag = country ? country.flag : "🌍"
-  if (isWorldRank) {
-    countryName = "World"
-    countryFlag = "🌍"
-  }
+  const countryName = country ? country.name : "Unknown"
+  const countryFlag = country ? country.flag : "🌍"
   const rankText = rank > 0 ? `#${rank}` : "N/A"
   const totalText = rank > 0 ? `of ${formatNumber(total)}` : ""
 
@@ -390,10 +385,10 @@ function generateSVG(
     <text x="122.5" y="47" fill="${t.text}" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-size="18" text-anchor="middle" font-weight="700">${formatNumber(user.public_repos)}</text>
   </g>
   
-  <!-- Rank Label -->
+  <!-- Country Rank Label -->
   <g transform="translate(320, 110)">
     <rect x="0" y="0" width="160" height="45" rx="8" fill="${t.cardBg}" stroke="${t.border}" stroke-width="1"/>
-    <text x="80" y="20" fill="${t.subtext}" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-size="9" text-anchor="middle" font-weight="500" letter-spacing="0.5">${isWorldRank ? "WORLD RANK" : "COUNTRY RANK"}</text>
+    <text x="80" y="20" fill="${t.subtext}" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-size="9" text-anchor="middle" font-weight="500" letter-spacing="0.5">COUNTRY RANK</text>
     <text x="80" y="38" fill="${rankColor}" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-size="14" text-anchor="middle" font-weight="700">
       ${rank > 0 ? `Top ${Math.round((rank / total) * 100) || 1}% in ${countryName}` : "Not Ranked"}
     </text>
@@ -439,9 +434,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { username } = await params
   const { searchParams } = new URL(request.url)
   const theme = (searchParams.get("theme") as "dark" | "light" | "gradient" | "midnight" | "ocean" | "sunset") || "dark"
-  const worldwide = searchParams.get("worldwide") === "true"
 
-  const cacheKey = `${username.toLowerCase()}:${theme}:worldwide=${worldwide}`
+  const cacheKey = `${username.toLowerCase()}:${theme}`
   const cached = badgeCache.get(cacheKey)
   if (cached && Date.now() - cached.timestamp < BADGE_CACHE_TTL) {
     return new NextResponse(cached.svg, {
@@ -487,36 +481,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const country = detectCountry(user.location)
   let rank = 0
   let total = 0
-  let isWorldRank = false
-  let worldRank = 0
-  let worldTotal = 0
-  let showBoth = worldwide
 
   if (country) {
     const rankData = await getUserRank(country.name, username)
     rank = rankData.rank
     total = rankData.total
-    if (!rank || !total || worldwide) {
-      // fallback to world rank if country rank not found or worldwide requested
-      const worldRankData = await getUserRank("", username)
-      worldRank = worldRankData.rank
-      worldTotal = worldRankData.total
-      if (!rank || !total) {
-        rank = worldRank
-        total = worldTotal
-        isWorldRank = true
-        showBoth = false
-      } else {
-        showBoth = worldwide
-      }
-    }
-  } else {
-    // No country detected, show world rank
-    const worldRankData = await getUserRank("", username)
-    rank = worldRankData.rank
-    total = worldRankData.total
-    isWorldRank = true
-    showBoth = false
   }
 
   // Add generated contribution stats so the badge matches the homepage data
@@ -536,13 +505,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // ignore avatar embedding errors and fall back to remote URL in SVG
   }
 
-  let svg = ""
-  if (showBoth && country && worldRank && worldTotal) {
-    // Show both country and world rank in badge
-    svg = generateSVG(userWithContrib, country, rank, total, theme, avatarDataUrl, false)
-  } else {
-    svg = generateSVG(userWithContrib, country, rank, total, theme, avatarDataUrl, isWorldRank)
-  }
+  const svg = generateSVG(userWithContrib, country, rank, total, theme, avatarDataUrl)
 
   badgeCache.set(cacheKey, { svg, timestamp: Date.now(), user: userWithContrib })
 

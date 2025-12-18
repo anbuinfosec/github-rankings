@@ -14,13 +14,17 @@ interface CountrySelectorProps {
 export function CountrySelector({ selectedCountry, onSelect }: CountrySelectorProps) {
   const [search, setSearch] = useState("")
 
+  // Always sort countries by name
+  const sortedCountries = useMemo(() => {
+    return [...countries].sort((a, b) => a.name.localeCompare(b.name))
+  }, [])
   const filteredCountries = useMemo(() => {
-    if (!search) return countries
+    if (!search) return sortedCountries
     const searchLower = search.toLowerCase()
-    return countries.filter(
+    return sortedCountries.filter(
       (country) => country.name.toLowerCase().includes(searchLower) || country.code.toLowerCase().includes(searchLower),
     )
-  }, [search])
+  }, [search, sortedCountries])
 
   return (
     <div className="w-full">

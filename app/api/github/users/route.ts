@@ -9,12 +9,13 @@ import {
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
-  const country = searchParams.get("country")
+
+  let country = searchParams.get("country") ?? ""
   const page = Number.parseInt(searchParams.get("page") || "1")
 
-  if (!country) {
-    return NextResponse.json({ error: "Country is required" }, { status: 400 })
-  }
+  // If no country or country is 'all' or 'world', treat as global search
+  const isWorld = !country || country.toLowerCase() === "all" || country.toLowerCase() === "world"
+  if (isWorld) country = "" // empty string disables location filter
 
   try {
     // Search for users by location

@@ -32,13 +32,20 @@ const fetcher = async (url: string): Promise<SearchResponse> => {
 }
 
 export function GitHubRankings() {
-  const [selectedCountry, setSelectedCountry] = useState<Country>(countries[0])
+  // Add a 'World' pseudo-country for all users
+  const worldCountry = useMemo(() => ({ code: "WORLD", name: "World", flag: "🌍", cities: [] }), [])
+  const [selectedCountry, setSelectedCountry] = useState<Country>(worldCountry)
   const [sortField, setSortField] = useState<SortField>("followers")
   const [page, setPage] = useState(1)
   const [showCountrySelector, setShowCountrySelector] = useState(false)
 
+  const pageSize = 30 // matches API default
   const { data, error, isLoading, mutate } = useSWR<SearchResponse>(
-    selectedCountry ? `/api/github/users?country=${encodeURIComponent(selectedCountry.name)}&page=${page}` : null,
+    selectedCountry
+      ? selectedCountry.code === "WORLD"
+        ? `/api/github/users?page=${page}`
+        : `/api/github/users?country=${encodeURIComponent(selectedCountry.name)}&page=${page}`
+      : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -85,6 +92,10 @@ export function GitHubRankings() {
   }
 
   const handleCountrySelectByName = (countryName: string) => {
+    if (countryName === "World") {
+      handleCountrySelect(worldCountry)
+      return
+    }
     const country = countries.find((c) => c.name === countryName)
     if (country) {
       handleCountrySelect(country)
@@ -237,7 +248,7 @@ export function GitHubRankings() {
                 )}
 
                 {/* Users Table */}
-                <UsersTable users={sortedUsers} sortField={sortField} loading={isLoading} />
+                <UsersTable users={sortedUsers} sortField={sortField} loading={isLoading} page={page} pageSize={pageSize} />
 
                 {/* Load More */}
                 {sortedUsers.length > 0 && sortedUsers.length < (data?.total_count || 0) && (

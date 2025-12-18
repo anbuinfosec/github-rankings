@@ -5,7 +5,7 @@ import {
   generateMockContributions,
   getRateLimitInfo,
 } from "@/lib/github-api"
-import { getSampleDataForCountry } from "@/lib/sample-data"
+
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -35,16 +35,14 @@ export async function GET(request: NextRequest) {
       isLiveData: true,
     })
   } catch (error) {
+
+    // If rate limited, just return an error now (no sample data fallback)
     if (error instanceof Error && error.message === "RATE_LIMITED") {
-      const sampleUsers = getSampleDataForCountry(country)
       return NextResponse.json({
-        users: sampleUsers,
-        total_count: sampleUsers.length,
-        page: 1,
+        error: "GitHub API rate limit reached. Please try again later.",
         rateLimitInfo: getRateLimitInfo(),
         isLiveData: false,
-        message: "GitHub API rate limit reached. Showing sample data. Try again in an hour.",
-      })
+      }, { status: 429 })
     }
 
     console.error("GitHub API error:", error)
